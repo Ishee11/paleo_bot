@@ -23,9 +23,6 @@ class Form(StatesGroup):
     phone_number = State()  # Will be represented in storage as 'Form:age'
     check = State()  # Will be represented in storage as 'Form:gender'
 
-# class FSMAdmin(StatesGroup):
-#     pass
-
 bot = Bot(token=cfg.TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
