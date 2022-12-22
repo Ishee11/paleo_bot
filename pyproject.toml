@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "paleobot"
+version = "0.1.0"
+description = "Бот для приема платежей"
+authors = ["Stepan Semenov <ishee11@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiogram = "^2.23.1"
+google-api-python-client = "^2.70.0"
+google-auth-httplib2 = "^0.1.0"
+google-auth-oauthlib = "^0.8.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
