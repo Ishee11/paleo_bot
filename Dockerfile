@@ -20,4 +20,4 @@ ADD token.json .
 ADD token.pickle .
 ADD requirements.txt .
 RUN pip install -r requirements.txt
-CMD python3 ./paleo_bot.py
+#CMD python3 ./paleo_bot.py
