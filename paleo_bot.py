@@ -246,8 +246,8 @@ if __name__ == '__main__':
         dispatcher=dp,
         webhook_path=cfg.WEBHOOK_PATH,
         skip_updates=True,
-        on_startup=on_startup,
-        on_shutdown=on_shutdown,
+        # on_startup=on_startup,
+        # on_shutdown=on_shutdown,
         host=cfg.WEBAPP_HOST,
         port=cfg.WEBAPP_PORT,
     )
