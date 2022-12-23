@@ -237,17 +237,17 @@ async def any_message(message: types.Message):
         await bot.send_message(cfg.admin_chat_id, text=message.text+"\n@" + str(user_username)+" "+str(user_full_name)+ " (ID: "+str(user_id)+")"+"\n"+dt)
 
 
-if __name__ == "__main__":
-    executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown)
+# if __name__ == "__main__":
+#     executor.start_polling(dp, on_startup=on_startup, on_shutdown=on_shutdown)
 
-# if __name__ == '__main__':
-#     logging.basicConfig(level=logging.INFO)
-#     start_webhook(
-#         dispatcher=dp,
-#         webhook_path=cfg.WEBHOOK_PATH,
-#         skip_updates=True,
-#         on_startup=on_startup,
-#         on_shutdown=on_shutdown,
-#         host=cfg.WEBAPP_HOST,
-#         port=cfg.WEBAPP_PORT,
-#     )
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    start_webhook(
+        dispatcher=dp,
+        webhook_path=cfg.WEBHOOK_PATH,
+        skip_updates=True,
+        on_startup=on_startup,
+        on_shutdown=on_shutdown,
+        host=cfg.WEBAPP_HOST,
+        port=cfg.WEBAPP_PORT,
+    )
