@@ -1,14 +1,14 @@
 FROM python:3.10
 RUN apt-get update -qu
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends gcc
-
-RUN python -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+#ENV PYTHONDONTWRITEBYTECODE 1
+#ENV PYTHONUNBUFFERED 1
+#
+#RUN apt-get update && \
+#    apt-get install -y --no-install-recommends gcc
+#
+#RUN python -m venv /opt/venv
+#ENV PATH="/opt/venv/bin:$PATH"
 
 ADD config.py .
 ADD credentials.json .
@@ -20,4 +20,6 @@ ADD token.json .
 ADD token.pickle .
 ADD requirements.txt .
 RUN pip install -r requirements.txt
-#CMD python3 ./paleo_bot.py
+WORKDIR .
+#ENTRYPOINT ['paleo_bot.py']
+CMD python3 ./paleo_bot.py
