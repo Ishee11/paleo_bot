@@ -1,9 +1,15 @@
 FROM python:3.10
 RUN apt-get update -qu
-RUN pip install --upgrade pip
-RUN adduser -D myuser
-USER myuser
-WORKDIR /home/myuser
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends gcc
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
 ADD config.py .
 ADD credentials.json .
 ADD data.pickle .
