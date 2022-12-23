@@ -1,5 +1,9 @@
 FROM python:3.10
 RUN apt-get update -qu
+RUN pip install --upgrade pip
+RUN adduser -D myuser
+USER myuser
+WORKDIR /home/myuser
 ADD config.py .
 ADD credentials.json .
 ADD data.pickle .
