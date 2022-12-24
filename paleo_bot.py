@@ -43,7 +43,7 @@ def if_none(x):
     return x
 
 async def on_startup(dispatcher):
-    await bot.set_webhook(cfg.WEBHOOK_URL, certificate='/etc/letsencrypt/live/95-163-235-27.cloudvps.regruhosting.ru/fullchain.pem', drop_pending_updates=True)
+    await bot.set_webhook(cfg.WEBHOOK_URL, certificate='/etc/ssl/certs/fullchain.pem', drop_pending_updates=True)
 
 async def on_shutdown(dispatcher):
     await bot.delete_webhook()
