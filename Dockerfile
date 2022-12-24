@@ -22,4 +22,4 @@ ADD requirements.txt .
 RUN pip install -r requirements.txt
 WORKDIR .
 #ENTRYPOINT ['paleo_bot.py']
-CMD python3 ./paleo_bot.py
+CMD python3 ./config.py
