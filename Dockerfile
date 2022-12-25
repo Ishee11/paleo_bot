@@ -9,7 +9,7 @@ RUN apt-get update -qu
 #
 #RUN python -m venv /opt/venv
 #ENV PATH="/opt/venv/bin:$PATH"
-
+ADD fullchain.pem .
 ADD config.py .
 ADD credentials.json .
 ADD data.pickle .
