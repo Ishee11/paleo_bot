@@ -9,16 +9,16 @@ RUN apt-get update -qu
 #
 #RUN python -m venv /opt/venv
 #ENV PATH="/opt/venv/bin:$PATH"
-ADD fullchain.pem .
-ADD config.py .
+#ADD fullchain.pem .
 ADD credentials.json .
 ADD data.pickle .
-ADD paleo_bot.py .
 ADD quickstart.py .
 ADD start.py .
 ADD token.json .
 ADD token.pickle .
 ADD requirements.txt .
+ADD config.py .
+ADD paleo_bot.py .
 RUN pip install -r requirements.txt
 WORKDIR .
 #ENTRYPOINT ['paleo_bot.py']

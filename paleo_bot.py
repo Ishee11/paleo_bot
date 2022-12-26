@@ -4,7 +4,7 @@ import datetime
 import re
 import pickle
 
-from aiogram.utils import executor
+#from aiogram.utils import executor
 
 import start
 import quickstart as qs
@@ -43,8 +43,9 @@ def if_none(x):
     return x
 
 async def on_startup(dispatcher):
-    await bot.set_webhook(cfg.WEBHOOK_URL, certificate='./fullchain.pem', drop_pending_updates=True)
-
+    await bot.set_webhook(cfg.WEBHOOK_URL, max_connections=3, drop_pending_updates=True)
+#cfg.WEBHOOK_URL https://webhook.site/975f4395-38be-44a1-ace5-0ffd58134520
+#certificate='./fullchain.pem',
 async def on_shutdown(dispatcher):
     await bot.delete_webhook()
     with open('data.pickle', 'wb') as f:

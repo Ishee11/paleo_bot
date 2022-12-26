@@ -5,11 +5,11 @@ TOKEN = "5871071094:AAFxcN4mTaEfUlrQ_cRvmdougqygEj05uUI" #paleo
 admin_chat_id = "287689713" #ID администратора
 
 # webhook settings
-WEBHOOK_HOST = f'https://api.telegram.org/bot5871071094:AAFxcN4mTaEfUlrQ_cRvmdougqygEj05uUI/setwebhook?url=https://95.163.235.27'
+HOST_URL = 'https://95.163.235.27'
+#WEBHOOK_HOST = f'https://api.telegram.org/bot5871071094:AAFxcN4mTaEfUlrQ_cRvmdougqygEj05uUI/setwebhook?url='+HOST_URL
+WEBHOOK_HOST = f'https://95.163.235.27'
 WEBHOOK_PATH = f'/webhook/{TOKEN}'
 WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 # webserver settings
 WEBAPP_HOST = '0.0.0.0'
-WEBAPP_PORT = os.getenv('4040', default=8443)
-
-print(WEBHOOK_URL)
+WEBAPP_PORT = os.getenv('PORT', default=5000)
