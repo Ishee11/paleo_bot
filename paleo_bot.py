@@ -204,7 +204,7 @@ async def process_gender(message: types.Message, state: FSMContext):
 
         # And send message
         dt = get_time()
-        link1 = await bot.create_chat_invite_link("-1001835917627", member_limit=1)
+        link1 = await bot.create_chat_invite_link("-1001907992326", member_limit=1)
         ikb = InlineKeyboardMarkup(row_width=2)
         ib1 = InlineKeyboardButton(text="Перейти в канал Палео Марафона", url=str(link1["invite_link"]))
         ikb.add(ib1)
