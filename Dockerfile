@@ -12,6 +12,7 @@ RUN apt-get update -qu
 #ADD fullchain.pem .
 ADD credentials.json .
 ADD data.pickle .
+ADD button.png .
 ADD quickstart.py .
 ADD start.py .
 ADD token.json .
