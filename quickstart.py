@@ -32,7 +32,8 @@ class GoogleSheet:
         data = [{'range': range, 'values': values}]
         body = {'valueInputOption': 'USER_ENTERED', 'data': data}
         result = self.service.spreadsheets().values().batchUpdate(spreadsheetId=self.SPREADSHEET_ID, body=body).execute()
-        print('{0} cells update.'.format(result.get('totalUpdateCells')))
+        print('{0} cells update.'.format(result.get('totalUpdatedCells')))
+        # print(result)
     def reedRangeValues(self, range, fio, user_id, user_full_name, phone_number, login):
         result = self.service.spreadsheets().values().get(spreadsheetId=self.SPREADSHEET_ID, range=range).execute()
         values = result.get('values', [])
@@ -48,14 +49,14 @@ class GoogleSheet:
 
 def main(fio, user_id, user_full_name, phone_number, login):
     gs = GoogleSheet()
-    test_range = 'test!A2:C104'
+    test_range = 'April 2023!A2:C104'
     gs.reedRangeValues(test_range, fio, user_id, user_full_name, phone_number, login)
 
 def update(row, fio, user_id, user_full_name, phone_number, login):
     gs = GoogleSheet()
-    test_range = 'test!B'+row+':F'+row
+    test_range = 'April 2023!B'+row+':F'+row
     test_values = [[fio, user_id, user_full_name, phone_number, login]]
     gs.updateRangeValues(test_range, test_values)
 
 # if __name__ == '__main__':
-#     main()
+#     main.py()

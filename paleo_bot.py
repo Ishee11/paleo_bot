@@ -5,6 +5,7 @@ import re
 import pickle
 
 #from aiogram.utils import executor
+import emoji
 
 import start
 import quickstart as qs
@@ -21,6 +22,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
 # States
 class Form(StatesGroup):
+    person_contact = State()
     name = State()  # Will be represented in storage as 'Form:name'
     phone_number = State()  # Will be represented in storage as 'Form:age'
     check = State()  # Will be represented in storage as 'Form:gender'
@@ -28,7 +30,7 @@ class Form(StatesGroup):
 bot = Bot(token=cfg.TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
-msg = [] #id сообщения о запуске бота
+msg = []
 
 def get_time():
     delta = datetime.timedelta(hours=10)
@@ -69,46 +71,81 @@ async def msg_func(msg, start_list):
     else:
         pass
 
+def get_phone_number():
+    markup_request = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(
+        KeyboardButton(text=emoji.emojize('Отправить свой контакт :telephone:', language='en'), request_contact=True))
+    return markup_request
+
 @dp.message_handler(commands=["start"]) #сообщение при старте
-async def start_handler(message: types.Message):
-    ikb = InlineKeyboardMarkup(row_width=2)
-    ib1 = InlineKeyboardButton(text="Записаться на Палео Марафон", callback_data="enroll")
-    ikb.add(ib1)
-    dt = get_time()
-    user_username = if_none(message.from_user.username)
-    user_id = if_none(message.from_user.id)
-    user_full_name = if_none(message.from_user.full_name)
-    logging.info(f"{user_username=} {user_id=} {user_full_name=} "+dt)
-    start_list[user_id].append("Запуск бота: ID: " + str(user_id) + " @" + str(user_username) + " " + str(user_full_name) + " " + dt)
-    await msg_func(msg, start_list)
-    await message.answer(start.start_message, reply_markup=ikb)
+async def start_handler(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['msg_id'] = []  # id сообщения о запуске бота
+        ikb = InlineKeyboardMarkup(row_width=2)
+        ib1 = InlineKeyboardButton(text="Записаться на Палео Марафон", callback_data="booking")
+        ikb.add(ib1)
+        dt = get_time()
+        data['user_username'] = if_none(message.from_user.username)
+        print(data['user_username'])
+        data['user_id'] = if_none(message.from_user.id)
+        user_full_name = if_none(message.from_user.full_name)
+        logging.info(f"{data['user_username']=} {data['user_id']=} {user_full_name=} "+dt)
+        start_list[data['user_id']].append("Запуск бота: ID: " + str(data['user_id']) + " @" + str(
+            data['user_username']) + " " + str(user_full_name) + " " + dt)
+        await msg_func(msg, start_list)
+        msg_message = await message.answer(start.start_message, reply_markup=ikb)
+        data['msg_id'] = msg_message['message_id']
+
 
 @dp.callback_query_handler() #после нажатия кнопки "Записаться..."
-async def vote_callback(callback: types.CallbackQuery):
-    dt = get_time()
-    user_id = if_none(callback.from_user.id)
-    user_full_name = if_none(callback.from_user.full_name)
-    if callback.data == "enroll":
-        await bot.send_message(callback.from_user.id, f"{user_full_name}, будем рады видеть Вас на нашем Палео Марафоне!\n\nДля участия выполните следующие шаги:\n\n"
-                         f"1) напишите Ваши ФИО и номер телефона;\n\n"
-                         f"2) внесите оплату 3000 руб. по следующим реквизитам:\n\n"
-                        f"Сбербанк, номер карты:\n 2202 2011 9759 9042\n"
-                         f"или по номеру телефона +79294011192 (Екатерина Евгеньевна С.)\n"
-                        f"* в дополнительных полях ничего указывать не нужно.\n\n"
-                        f"3) После оплаты пришлите, пожалуйста, скриншот перевода.\n\n"
-                         f"Затем Вы получите ссылку на вступление в канал марафона.")
-        start_list[user_id].append('Кнопка "записаться"' + " " + dt)
+async def vote_callback(callback: types.CallbackQuery, state: FSMContext):
+    async with state.proxy() as data:
+        data['dt'] = get_time()
+        data['user_full_name'] = if_none(callback.from_user.full_name)
+        if callback.data == "booking":
+            data['markup_request'] = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(
+                KeyboardButton(text=emoji.emojize('Отправить свой контакт :telephone:', language='en'),
+                               request_contact=True))
+            await bot.delete_message(callback.from_user.id, data['msg_id'])
+            msg_message = await bot.send_message(callback.from_user.id, text=emoji.emojize(
+                "При использовании бота необходим Ваш номер телефона.\n"
+                "Для согласия нажмите кнопку ниже :down_arrow:\n\n"
+                "Если её нет, дважды нажмите кнопку слева от иконки микрофона"),
+                                                 reply_markup=data['markup_request'])
+            msg_message1 = await bot.send_photo(callback.from_user.id, types.InputFile('button.png'))
+            data['msg_id1'] = msg_message['message_id']
+            data['msg_id2'] = msg_message1['message_id']
+            await Form.person_contact.set()
+
+
+@dp.message_handler(state=Form.person_contact)
+async def contacts(message: types.Message):
+    await bot.delete_message(message.chat.id, message.message_id)
+
+
+@dp.message_handler(content_types=types.ContentType.CONTACT, state=Form.person_contact)
+async def contacts(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['phone_number'] = message.contact.phone_number
+        start_list[data['user_id']].append('Отправлен номер: ID: ' + str(data['user_id']) + ' ' + data['dt'])
         await msg_func(msg, start_list)
+        await bot.delete_message(message.chat.id, data['msg_id1'])
+        await bot.delete_message(message.chat.id, data['msg_id2'])
+        msg_message = await bot.send_message(message.chat.id, f"Номер успешно получен: {message.contact.phone_number}",
+                                             reply_markup=types.ReplyKeyboardRemove())
+        data['msg_id'] = msg_message['message_id']
+        await bot.delete_message(message.chat.id, data['msg_id'])
+        await bot.delete_message(message.chat.id, message.message_id)
+        data['phone_number'] = message.contact.phone_number
         await Form.name.set()
         cancel_kb1 = KeyboardButton('Отменить')
         cancel_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(cancel_kb1)
-        await bot.send_message(callback.from_user.id, 'Представьтесь, пожалуйста!', reply_markup=cancel_kb)
+        await bot.send_message(message.chat.id, 'Представьтесь, пожалуйста!', reply_markup=cancel_kb)
+
 
 # Выход из процесса регистрации
 @dp.message_handler(state='*', commands='Отменить')
 @dp.message_handler(Text(equals='Отменить', ignore_case=True), state='*')
 async def cancel_handler(message: types.Message, state: FSMContext):
-# async def cancel_handler(callback: types.CallbackQuery, state: FSMContext):
     """
             Allow user to cancel any action
             """
@@ -124,19 +161,21 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     # await callback.message('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
     await message.reply('Регистрация отменена. Для повторного начала регистрации нажмите кнопку "Записаться на Палео Марафон', reply_markup=types.ReplyKeyboardRemove())
 
+
 @dp.message_handler(state=Form.name)
 async def process_name(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['name'] = message.text
 
-    await Form.next()
-    await bot.send_message(message.from_user.id, "Ваш номер телефона")
+    await Form.check.set()
+    await bot.send_message(message.from_user.id, emoji.emojize(
+                             f"Для участия необходимо внести оплату 3000 руб. по следующим реквизитам:\n\n"
+                            f"Сбербанк, номер карты:\n 2202 2011 9759 9042\n"
+                             f"или по номеру телефона +79294011192 (Екатерина Евгеньевна С.)\n"
+                            f"* в дополнительных полях ничего указывать не нужно.\n\n"
+                            f"ОБЯЗАТЕЛЬНО: После оплаты пришлите сюда скриншот перевода :paperclip:\n\n"
+                             f"Затем Вы получите ссылку на вступление в канал марафона.", language='en'))
 
-@dp.message_handler(state=Form.phone_number)
-async def process_phone_number(message: types.Message, state: FSMContext):
-    await Form.next()
-    await state.update_data(phone_number=str(message.text))
-    await bot.send_message(message.from_user.id, "Теперь пришлите скриншот или чек перевода")
 
 @dp.message_handler(lambda message: message.text, state=Form.check)
 async def process_check_invalid(message: types.Message):
@@ -149,10 +188,14 @@ async def process_gender(message: types.Message, state: FSMContext):
             data['check'] = message.photo[-1].file_id
             id_photo = data['check']
             await bot.send_photo(cfg.admin_chat_id, photo=id_photo)
+            await bot.send_message(cfg.admin_chat_id, text=str(
+                data['phone_number']) + '    ' + '@' + data['user_username'])
         elif 'document' in message:
             data['check'] = message.document.file_id
             id_document = data['check']
             await bot.send_document(cfg.admin_chat_id, document=id_document)
+            await bot.send_message(cfg.admin_chat_id, text=str(
+                data['phone_number']) + '    ' + '@' + data['user_username'])
         else:
             pass
 
@@ -178,35 +221,12 @@ async def process_gender(message: types.Message, state: FSMContext):
     # Finish conversation
     await state.finish()
 
-# @dp.message_handler(content_types=['photo', 'document']) #отвечаем на получение скрина
-# async def handle_photo(message: types.Message):
-#     dt = get_time()
-#     link1 = await bot.create_chat_invite_link("-1001835917627", member_limit=1)
-#     ikb = InlineKeyboardMarkup(row_width=2)
-#     ib1 = InlineKeyboardButton(text="Перейти в канал Палео Марафона", url=str(link1["invite_link"]))
-#     ikb.add(ib1)
-#     user_username = if_none(message.from_user.username)
-#     user_id = if_none(message.from_user.id)
-#     user_full_name = if_none(message.from_user.full_name)
-#     logging.info(f"{user_id=} {user_full_name=} {time.asctime()}")
-#     start_list[user_id].append('Отправлен скрин/документ"' + " " + dt)
-#     if 'photo' in message:
-#         id_photo = message.photo[-1].file_id
-#         await bot.send_photo(admin_chat_id, photo=id_photo)
-#     elif 'document' in message:
-#         id_document = message.document.file_id
-#         await bot.send_document(admin_chat_id, document=id_document)
-#     else:
-#         pass
-#     await bot.send_message(message.chat.id,
-#                            "Спасибо за оплату!\n\nДобро пожаловать на Палео Марафон!\n", reply_markup=ikb)
-#     #await bot.send_message(admin_chat_id, text="@" + str(user_username) + " (ID: " + str(user_id) + ")\n" + str(user_full_name) + "\n" + dt)
-
-@dp.message_handler(commands='list')
-async def start_list_command(message: types.Message):
-    msg_message = await bot.send_message(cfg.admin_chat_id, text=message.message_id+1)
-    msg.append(msg_message['message_id'])
-    await msg_func(msg, start_list)
+@dp.message_handler(commands='runlist')
+async def start_list_command(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        msg_message = await bot.send_message(cfg.admin_chat_id, text=message.message_id+1)
+        msg.append(msg_message['message_id'])
+        await msg_func(msg, start_list)
 
 @dp.message_handler()
 async def any_message(message: types.Message):
