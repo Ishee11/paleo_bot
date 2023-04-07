@@ -92,7 +92,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         start_list[data['user_id']].append("Запуск бота: ID: " + str(data['user_id']) + " @" + str(
             data['user_username']) + " " + str(user_full_name) + " " + dt)
         await msg_func(msg, start_list)
-        msg_message = await message.answer(start.start_message, reply_markup=ikb)
+        msg_message = await message.answer(text=emoji.emojize(start.start_message), reply_markup=ikb)
         data['msg_id'] = msg_message['message_id']
 
 
