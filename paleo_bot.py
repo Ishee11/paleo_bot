@@ -126,7 +126,7 @@ async def contacts(message: types.Message):
 async def contacts(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['phone_number'] = message.contact.phone_number
-        start_list[data['user_id']].append('Отправлен номер: ' + str(data['phone_number']) + 'ID: ' + str(data['user_id']) + ' ' + data['dt'])
+        start_list[data['user_id']].append('Отправлен номер: ' + str(data['phone_number']) + ' ID: ' + str(data['user_id']) + ' ' + data['dt'])
         await msg_func(msg, start_list)
         await bot.delete_message(message.chat.id, data['msg_id1'])
         await bot.delete_message(message.chat.id, data['msg_id2'])
