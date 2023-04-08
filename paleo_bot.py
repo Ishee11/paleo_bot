@@ -89,7 +89,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         data['user_id'] = if_none(message.from_user.id)
         user_full_name = if_none(message.from_user.full_name)
         logging.info(f"{data['user_username']=} {data['user_id']=} {user_full_name=} "+dt)
-        start_list[data['user_id']].append("Запуск бота: ID: " + str(data['user_id']) + " @" + str(
+        start_list[data['user_id']].append("-> start: ID " + str(data['user_id']) + " @" + str(
             data['user_username']) + " " + str(user_full_name) + " " + dt)
         await msg_func(msg, start_list)
         msg_message = await message.answer(text=emoji.emojize(start.start_message), reply_markup=ikb)
@@ -170,7 +170,7 @@ async def process_name(message: types.Message, state: FSMContext):
 
     await Form.check.set()
     await bot.send_message(message.from_user.id, emoji.emojize(
-                             f"Для участия необходимо внести оплату 3000 руб. по следующим реквизитам:\n\n"
+                             f"Для участия необходимо внести оплату 3500 руб. по следующим реквизитам:\n\n"
                             f"Сбербанк, номер карты:\n 2202 2011 9759 9042\n"
                              f"или по номеру телефона +79294011192 (Екатерина Евгеньевна С.)\n"
                             f"* в дополнительных полях ничего указывать не нужно.\n\n"
