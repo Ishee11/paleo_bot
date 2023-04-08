@@ -126,7 +126,8 @@ async def contacts(message: types.Message):
 async def contacts(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['phone_number'] = message.contact.phone_number
-        start_list[data['user_id']].append('Отправлен номер: ' + str(data['phone_number']) + ' ID: ' + str(data['user_id']) + ' ' + data['dt'])
+        start_list[data['user_id']].append('-> ' + str(data['phone_number']) + ' ' +
+                                           data['dt'])
         await msg_func(msg, start_list)
         await bot.delete_message(message.chat.id, data['msg_id1'])
         await bot.delete_message(message.chat.id, data['msg_id2'])
@@ -212,7 +213,7 @@ async def process_gender(message: types.Message, state: FSMContext):
         user_id = if_none(message.from_user.id)
         user_full_name = if_none(message.from_user.full_name)
         logging.info(f"{user_id=} {user_full_name=} {time.asctime()}")
-        start_list[user_id].append('Отправлен скрин/документ"' + " " + dt)
+        start_list[user_id].append('-> скрин ' + data['phone_number'] + ' ' + dt)
         qs.main(data['name'], user_id, user_full_name, data['phone_number'], user_username)
 
         await bot.send_message(message.chat.id, 'Спасибо за оплату!', reply_markup=markup)
@@ -229,33 +230,37 @@ async def start_list_command(message: types.Message, state: FSMContext):
         await msg_func(msg, start_list)
 
 @dp.message_handler()
-async def any_message(message: types.Message):
-    dt = get_time()
-    user_username = if_none(message.from_user.username)
-    user_id = if_none(message.from_user.id)
-    user_full_name = if_none(message.from_user.full_name)
-    goal_user_id = re.findall(r"-?\d+", message.text)
-    if 'help' in message.text:
-        await bot.send_message(cfg.admin_chat_id, text="""
-        Для отправки ссылки введите:\nsend link 'ID'\n\nДля отправки сообщения введите:\nsend message 'ID' 'text message'
-        """)
-    elif 'send link' in message.text:
-        try:
-            link = await bot.create_chat_invite_link("-1001835917627", member_limit=1)
-            ikb = InlineKeyboardMarkup(row_width=2)
-            ib1 = InlineKeyboardButton(text="Перейти в канал Палео Марафона", url=str(link["invite_link"]))
-            ikb.add(ib1)
-            await bot.send_message(goal_user_id[0], text="Ваша ссылка:", reply_markup=ikb)
-        except:
-            await bot.send_message(cfg.admin_chat_id, text='ошибка: некорректный ID')
-    elif 'send message' in message.text:
-        try:
-            message1 = re.findall(r":\s+([^\n]+)", message.text)
-            await bot.send_message(goal_user_id[0], text=''.join(str(message1)[2:-2]))
-        except:
-            await bot.send_message(cfg.admin_chat_id, text='некорректный формат команды\n\nДля отправки сообщения введите:\nsend message "ID" "text message"')
-    else:
-        await bot.send_message(cfg.admin_chat_id, text=message.text+"\n@" + str(user_username)+" "+str(user_full_name)+ " (ID: "+str(user_id)+")"+"\n"+dt)
+async def delete(message: types.Message):
+    await bot.delete_message(message.chat.id, message.message_id)
+
+# @dp.message_handler()
+# async def any_message(message: types.Message):
+#     dt = get_time()
+#     user_username = if_none(message.from_user.username)
+#     user_id = if_none(message.from_user.id)
+#     user_full_name = if_none(message.from_user.full_name)
+#     goal_user_id = re.findall(r"-?\d+", message.text)
+#     if 'help' in message.text:
+#         await bot.send_message(cfg.admin_chat_id, text="""
+#         Для отправки ссылки введите:\nsend link 'ID'\n\nДля отправки сообщения введите:\nsend message 'ID' 'text message'
+#         """)
+#     elif 'send link' in message.text:
+#         try:
+#             link = await bot.create_chat_invite_link("-1001835917627", member_limit=1)
+#             ikb = InlineKeyboardMarkup(row_width=2)
+#             ib1 = InlineKeyboardButton(text="Перейти в канал Палео Марафона", url=str(link["invite_link"]))
+#             ikb.add(ib1)
+#             await bot.send_message(goal_user_id[0], text="Ваша ссылка:", reply_markup=ikb)
+#         except:
+#             await bot.send_message(cfg.admin_chat_id, text='ошибка: некорректный ID')
+#     elif 'sm' in message.text:
+#         try:
+#             message1 = re.findall(r":\s+([^\n]+)", message.text)
+#             await bot.send_message(goal_user_id[0], text=''.join(str(message1)[2:-2]))
+#         except:
+#             await bot.send_message(cfg.admin_chat_id, text='некорректный формат команды\n\nДля отправки сообщения введите:\nsm ID text message')
+#     else:
+#         await bot.send_message(cfg.admin_chat_id, text=message.text+"\n@" + str(user_username)+" "+str(user_full_name)+ " (ID: "+str(user_id)+")"+"\n"+dt)
 
 
 # if __name__ == "__main__":
