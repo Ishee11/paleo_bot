@@ -1,7 +1,7 @@
 import os
 
 #TOKEN = "1759945997:AAFu2qp0IktDHQnRAjEH-mL2n-qPhe79Ckk" #relaxroom
-TOKEN = "5964884561:AAEufeTZxmVFEK8hfx5cqxQWB9Ibjt3BuYw" #paleo
+TOKEN = "6021581716:AAG1VbbqwcJdSkBfxB9XARjMVk4-kaI7In4" #paleo
 admin_chat_id = "287689713" #ID администратора
 
 # webhook settings
