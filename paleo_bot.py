@@ -65,7 +65,7 @@ async def msg_func(msg, start_list):
     start_list_y = []
     for i in start_list_x:
         start_list_y.append(str('\n'.join(start_list[i][0:])))
-    text_len = '\n'.join(start_list_y)[0:] + '\n\nЗапусков бота: ' + str(len(list(start_list))) + '\n'
+    text_len = 'Запусков бота: ' + str(len(list(start_list)))
     if msg:
         await bot.edit_message_text(text_len, cfg.admin_chat_id, msg[-1])
     else:
