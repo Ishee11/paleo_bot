@@ -72,8 +72,7 @@ async def msg_func(msg, start_list):
         else:
             pass
     except:
-        pass
-        # await bot.send_message() IndexError
+        await bot.send_message(cfg.admin_chat_id, text='ошибка')
 
 def get_phone_number():
     markup_request = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(
@@ -89,7 +88,7 @@ async def start_handler(message: types.Message, state: FSMContext):
         ikb.add(ib1)
         dt = get_time()
         data['user_username'] = if_none(message.from_user.username)
-        print(data['user_username'])
+        # print(data['user_username'])
         data['user_id'] = if_none(message.from_user.id)
         user_full_name = if_none(message.from_user.full_name)
         logging.info(f"{data['user_username']=} {data['user_id']=} {user_full_name=} "+dt)
@@ -112,7 +111,7 @@ async def vote_callback(callback: types.CallbackQuery, state: FSMContext):
             try:
                 await bot.delete_message(callback.from_user.id, data['msg_id'])
             except:
-                pass
+                await bot.send_message(cfg.admin_chat_id, text='ошибка')
             msg_message = await bot.send_message(callback.from_user.id, text=emoji.emojize(
                 "При использовании бота необходим Ваш номер телефона.\n"
                 "Для согласия нажмите кнопку ниже :down_arrow:\n\n"
@@ -129,7 +128,7 @@ async def contacts(message: types.Message):
     try:
         await bot.delete_message(message.chat.id, message.message_id)
     except:
-        pass
+        await bot.send_message(cfg.admin_chat_id, text='ошибка')
 
 
 @dp.message_handler(content_types=types.ContentType.CONTACT, state=Form.person_contact)
@@ -143,7 +142,7 @@ async def contacts(message: types.Message, state: FSMContext):
             await bot.delete_message(message.chat.id, data['msg_id1'])
             await bot.delete_message(message.chat.id, data['msg_id2'])
         except:
-            pass
+            await bot.send_message(cfg.admin_chat_id, text='ошибка')
         msg_message = await bot.send_message(message.chat.id, f"Номер успешно получен: {message.contact.phone_number}",
                                              reply_markup=types.ReplyKeyboardRemove())
         data['msg_id'] = msg_message['message_id']
@@ -151,7 +150,7 @@ async def contacts(message: types.Message, state: FSMContext):
             await bot.delete_message(message.chat.id, data['msg_id'])
             await bot.delete_message(message.chat.id, message.message_id)
         except:
-            pass
+            await bot.send_message(cfg.admin_chat_id, text='ошибка')
         data['phone_number'] = message.contact.phone_number
         await Form.name.set()
         cancel_kb1 = KeyboardButton('Отменить')
@@ -240,10 +239,13 @@ async def process_gender(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands='runlist')
 async def start_list_command(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        msg_message = await bot.send_message(cfg.admin_chat_id, text=message.message_id+1)
-        msg.append(msg_message['message_id'])
-        await msg_func(msg, start_list)
+    try:
+        async with state.proxy() as data:
+            msg_message = await bot.send_message(cfg.admin_chat_id, text=message.message_id+1)
+            msg.append(msg_message['message_id'])
+            await msg_func(msg, start_list)
+    except:
+        await bot.send_message(cfg.admin_chat_id, text='ошибка')
 
 @dp.message_handler()
 async def delete(message: types.Message):
@@ -251,7 +253,6 @@ async def delete(message: types.Message):
         await bot.delete_message(message.chat.id, message.message_id)
     except:
         pass
-
 # @dp.message_handler()
 # async def any_message(message: types.Message):
 #     dt = get_time()

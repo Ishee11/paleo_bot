@@ -6,7 +6,7 @@ TOKEN = "6021581716:AAG1VbbqwcJdSkBfxB9XARjMVk4-kaI7In4" #paleo
 admin_chat_id = "287689713" #ID администратора
 
 # webhook settings
-# WEBHOOK_HOST = 'https://cd5b-95-70-91-254.ngrok-free.app'
+# WEBHOOK_HOST = 'https://db20-95-70-91-254.ngrok-free.app'
 WEBHOOK_HOST = 'https://194-67-90-42.cloudvps.regruhosting.ru'
 WEBHOOK_PATH = f'/webhook/{TOKEN}'
 WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
