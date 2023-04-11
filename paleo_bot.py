@@ -1,3 +1,4 @@
+import sys
 import time
 import logging
 import datetime
@@ -60,15 +61,19 @@ except:
         start_list = defaultdict(list) #список: запуск, кнопка запись
 
 async def msg_func(msg, start_list):
-    start_list_x = list(start_list)
-    start_list_y = []
-    for i in start_list_x:
-        start_list_y.append(str('\n'.join(start_list[i][0:])))
-    text_len = 'Запусков бота: ' + str(len(list(start_list)))
-    if msg:
-        await bot.edit_message_text(text_len, cfg.admin_chat_id, msg[-1])
-    else:
+    try:
+        start_list_x = list(start_list)
+        start_list_y = []
+        for i in start_list_x:
+            start_list_y.append(str('\n'.join(start_list[i][0:])))
+        text_len = 'Запусков бота: ' + str(len(list(start_list)))
+        if msg:
+            await bot.edit_message_text(text_len, cfg.admin_chat_id, msg[-1])
+        else:
+            pass
+    except:
         pass
+        # await bot.send_message() IndexError
 
 def get_phone_number():
     markup_request = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(
@@ -104,7 +109,10 @@ async def vote_callback(callback: types.CallbackQuery, state: FSMContext):
             data['markup_request'] = ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True).add(
                 KeyboardButton(text=emoji.emojize('Отправить свой контакт :telephone:', language='en'),
                                request_contact=True))
-            await bot.delete_message(callback.from_user.id, data['msg_id'])
+            try:
+                await bot.delete_message(callback.from_user.id, data['msg_id'])
+            except:
+                pass
             msg_message = await bot.send_message(callback.from_user.id, text=emoji.emojize(
                 "При использовании бота необходим Ваш номер телефона.\n"
                 "Для согласия нажмите кнопку ниже :down_arrow:\n\n"
@@ -118,7 +126,10 @@ async def vote_callback(callback: types.CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state=Form.person_contact)
 async def contacts(message: types.Message):
-    await bot.delete_message(message.chat.id, message.message_id)
+    try:
+        await bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
 
 
 @dp.message_handler(content_types=types.ContentType.CONTACT, state=Form.person_contact)
@@ -128,13 +139,19 @@ async def contacts(message: types.Message, state: FSMContext):
         start_list[data['user_id']].append('-> ' + str(data['phone_number']) + ' ' +
                                            data['dt'])
         await msg_func(msg, start_list)
-        await bot.delete_message(message.chat.id, data['msg_id1'])
-        await bot.delete_message(message.chat.id, data['msg_id2'])
+        try:
+            await bot.delete_message(message.chat.id, data['msg_id1'])
+            await bot.delete_message(message.chat.id, data['msg_id2'])
+        except:
+            pass
         msg_message = await bot.send_message(message.chat.id, f"Номер успешно получен: {message.contact.phone_number}",
                                              reply_markup=types.ReplyKeyboardRemove())
         data['msg_id'] = msg_message['message_id']
-        await bot.delete_message(message.chat.id, data['msg_id'])
-        await bot.delete_message(message.chat.id, message.message_id)
+        try:
+            await bot.delete_message(message.chat.id, data['msg_id'])
+            await bot.delete_message(message.chat.id, message.message_id)
+        except:
+            pass
         data['phone_number'] = message.contact.phone_number
         await Form.name.set()
         cancel_kb1 = KeyboardButton('Отменить')
@@ -230,7 +247,10 @@ async def start_list_command(message: types.Message, state: FSMContext):
 
 @dp.message_handler()
 async def delete(message: types.Message):
-    await bot.delete_message(message.chat.id, message.message_id)
+    try:
+        await bot.delete_message(message.chat.id, message.message_id)
+    except:
+        pass
 
 # @dp.message_handler()
 # async def any_message(message: types.Message):
