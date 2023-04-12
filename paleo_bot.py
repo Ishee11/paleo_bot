@@ -58,15 +58,29 @@ try:
         start_list = pickle.load(f)
 except:
     with open('data.pickle', 'rb') as f:
-        start_list = defaultdict(list) #список: запуск, кнопка запись
+        # start_list = defaultdict(list) #список: запуск, кнопка запись
+        start_list = {} #список: запуск, кнопка запись
 
 async def msg_func(msg, start_list):
     try:
-        start_list_x = list(start_list)
-        start_list_y = []
-        for i in start_list_x:
-            start_list_y.append(str('\n'.join(start_list[i][0:])))
-        text_len = 'Запусков бота: ' + str(len(list(start_list)))
+        # start_list_x = list(start_list)
+        # print(start_list_x)
+        # start_list_y = []
+        # print(start_list_y)
+        # for i in start_list_x:
+        #     start_list_y.append(str('\n'.join(start_list[i][0:])))
+        # print(start_list_y)
+        print(start_list)
+        text_send = {'start': 0, 'pay': 0}
+        for i in start_list:
+            print(i)
+            if start_list[i]['start'] != '':
+                text_send['start'] += 1
+            if start_list[i]['pay'] != '':
+                text_send['pay'] += 1
+        print(text_send)
+        # text_len = 'Запусков бота: ' + str(len(list(start_list)))
+        text_len = 'Запусков бота: ' + str(text_send['start']) + '\nОплат: ' + str(text_send['pay'])
         if msg:
             await bot.edit_message_text(text_len, cfg.admin_chat_id, msg[-1])
         else:
@@ -92,9 +106,11 @@ async def start_handler(message: types.Message, state: FSMContext):
         data['user_id'] = if_none(message.from_user.id)
         user_full_name = if_none(message.from_user.full_name)
         logging.info(f"{data['user_username']=} {data['user_id']=} {user_full_name=} "+dt)
-        start_list[data['user_id']].append("-> start: ID " + str(data['user_id']) + " @" + str(
-            data['user_username']) + " " + str(user_full_name) + " " + dt)
-        await msg_func(msg, start_list)
+        # start_list[data['user_id']].append("-> start: ID " + str(data['user_id']) + " @" + str(
+        #     data['user_username']) + " " + str(user_full_name) + " " + dt)
+        start_list[data['user_id']] = {'start': ("-> start: ID " + str(data['user_id']) + " @" + str(
+            data['user_username']) + " " + str(user_full_name) + " " + dt), 'phone': '', 'pay': ''}
+        # await msg_func(msg, start_list)
         msg_message = await message.answer(text=emoji.emojize(start.start_message), reply_markup=ikb)
         data['msg_id'] = msg_message['message_id']
 
@@ -135,9 +151,11 @@ async def contacts(message: types.Message):
 async def contacts(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['phone_number'] = message.contact.phone_number
-        start_list[data['user_id']].append('-> ' + str(data['phone_number']) + ' ' +
+        # start_list[data['user_id']].append('-> ' + str(data['phone_number']) + ' ' +
+        #                                    data['dt'])
+        start_list[data['user_id']]['phone'] = ('-> ' + str(data['phone_number']) + ' ' +
                                            data['dt'])
-        await msg_func(msg, start_list)
+        # await msg_func(msg, start_list)
         try:
             await bot.delete_message(message.chat.id, data['msg_id1'])
             await bot.delete_message(message.chat.id, data['msg_id2'])
@@ -228,7 +246,7 @@ async def process_gender(message: types.Message, state: FSMContext):
         user_id = if_none(message.from_user.id)
         user_full_name = if_none(message.from_user.full_name)
         logging.info(f"{user_id=} {user_full_name=} {time.asctime()}")
-        start_list[user_id].append('-> скрин ' + data['phone_number'] + ' ' + dt)
+        start_list[user_id]['pay'] = ('-> скрин ' + data['phone_number'] + ' ' + dt)
         qs.main(data['name'], user_id, user_full_name, data['phone_number'], user_username)
 
         await bot.send_message(message.chat.id, 'Спасибо за оплату!', reply_markup=markup)
