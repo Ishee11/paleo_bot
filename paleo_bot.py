@@ -114,6 +114,17 @@ def get_phone_number():
     return markup_request
 
 
+@dp.message_handler(commands='runlist')
+async def start_list_command(message: types.Message, state: FSMContext):
+    try:
+        async with state.proxy() as data:
+            message_id = await bot.send_message(cfg.admin_chat_id, text=message.message_id+1)
+            runlist_message['message_id'] = message_id['message_id']
+            await runlist_send()
+    except:
+        await bot.send_message(cfg.admin_chat_id, text='ошибка')
+
+
 @dp.message_handler(commands=["start"]) #сообщение при старте
 async def start_handler(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
@@ -261,17 +272,6 @@ async def process_gender(message: types.Message, state: FSMContext):
         except KeyError:
             await bot.send_message(message.chat.id, 'Произошла ошибка, пожалуйста, перезапустите бота - /start')
     await state.finish()
-
-
-@dp.message_handler(commands='runlist')
-async def start_list_command(message: types.Message, state: FSMContext):
-    try:
-        async with state.proxy() as data:
-            message_id = await bot.send_message(cfg.admin_chat_id, text=message.message_id+1)
-            runlist_message['message_id'] = message_id['message_id']
-            await runlist_send()
-    except:
-        await bot.send_message(cfg.admin_chat_id, text='ошибка')
 
 
 # if __name__ == "__main__":
